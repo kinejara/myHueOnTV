@@ -10,6 +10,8 @@
 
 @interface BridgePushLinkViewController ()
 
+@property (weak, nonatomic) IBOutlet UILabel *instructions;
+
 @end
 
 @implementation BridgePushLinkViewController
@@ -96,11 +98,25 @@
 - (void)authenticationFailed {
     // Deregister for all notifications
     [[PHNotificationManager defaultManager] deregisterObjectForAllNotifications:self];
-    
     // Inform delegate
     [self.delegate pushlinkFailed:[PHError errorWithDomain:SDK_ERROR_DOMAIN
                                                       code:PUSHLINK_TIME_LIMIT_REACHED
                                                   userInfo:[NSDictionary dictionaryWithObject:@"Authentication failed: time limit reached." forKey:NSLocalizedDescriptionKey]]];
+    
+    [self showInstructionsWithAnimatedText:@"Authentication failed: time limit reached."];
+    [self performSelector:@selector(dismissViewWithDelay) withObject:nil afterDelay:1.80];
+}
+
+- (void)showInstructionsWithAnimatedText:(NSString *)instructionText {
+    [UIView animateWithDuration:0.5 animations:^{
+        self.instructions.alpha = 0.0f;
+        self.instructions.alpha = 1.0f;
+        self.instructions.text = instructionText;
+    }];
+}
+
+- (void)dismissViewWithDelay {
+    [self dismissViewControllerAnimated:YES completion:^{}];
 }
 
 /**

@@ -10,6 +10,7 @@
 #import <HueSDK_iOS/HueSDK.h>
 #import "BridgePushLinkViewController.h"
 #import "BridgeSelectionViewController.h"
+#import "LoadingViewController.h"
 
 #define UIAppDelegate  ((AppDelegate *)[[UIApplication sharedApplication] delegate])
 
@@ -20,6 +21,7 @@
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) UITabBarController *tapBarController;
+@property (nonatomic, strong) LoadingViewController *loadingView;
 @property (strong, nonatomic) PHHueSDK *phHueSDK;
 
 #pragma mark - HueSDK
@@ -38,6 +40,8 @@
  Starts a search for a bridge
  */
 - (void)searchForBridgeLocal;
+
+- (void)removeLoadingView;
 
 
 @end

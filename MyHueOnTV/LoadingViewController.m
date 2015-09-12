@@ -25,7 +25,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
+    [self customizeTranslucentLayer];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -36,6 +36,10 @@
 - (void)viewDidUnload {
     [self setLoadingLabel:nil];
     [super viewDidUnload];
+}
+
+- (void)customizeTranslucentLayer {
+    self.translucenLayer.layer.cornerRadius = 20.0f;
 }
 
 /*

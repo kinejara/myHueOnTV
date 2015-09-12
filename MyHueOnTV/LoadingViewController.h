@@ -14,6 +14,7 @@
  The label shown below the loading spinner
  */
 @property (nonatomic,weak) IBOutlet UILabel *loadingLabel;
+@property (nonatomic,weak) IBOutlet UIView *translucenLayer;
 
 
 @end

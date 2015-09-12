@@ -103,6 +103,8 @@
     
     // Inform delegate
     [self.delegate bridgeSelectedWithIpAddress:ip andBridgeId:bridgeId];
+    
+    [self dismissViewControllerAnimated:YES completion:^{}];
 }
 
 /*

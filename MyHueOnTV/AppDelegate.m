@@ -10,12 +10,10 @@
 
 #import "BridgePushLinkViewController.h"
 #import "BridgeSelectionViewController.h"
-#import "LoadingViewController.h"
 
 @interface AppDelegate ()
 
 @property (nonatomic, strong) PHBridgeSearching *bridgeSearch;
-@property (nonatomic, strong) LoadingViewController *loadingView;
 @property (nonatomic, strong) BridgePushLinkViewController *pushLinkViewController;
 @property (nonatomic, strong) BridgeSelectionViewController *bridgeSelectionViewController;
 
@@ -35,17 +33,14 @@
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
     [self enableLocalHeartbeat];
 }
 
@@ -114,7 +109,6 @@
     /***************************************************
      doAuthentication will start the push linking
      *****************************************************/
-    
     // Start local authenticion process
     [self performSelector:@selector(doAuthentication) withObject:nil afterDelay:0.5];
 }
@@ -155,29 +149,20 @@
 - (void)doAuthentication {
     // Disable heartbeats
     [self disableLocalHeartbeat];
+    [self removeLoadingView];
     /***************************************************
      To be certain that we own this bridge we must manually
      push link it. Here we display the view to do this.
      *****************************************************/
     // Create an interface for the pushlinking
-
     self.pushLinkViewController = [[BridgePushLinkViewController alloc] initWithNibName:@"BridgePushLinkViewController" bundle:[NSBundle mainBundle] hueSDK:UIAppDelegate.phHueSDK delegate:self];
     
     [self.tapBarController presentViewController:self.pushLinkViewController animated:YES completion:^{
-                /***************************************************
-                 Start the push linking process.
-                 *****************************************************/
-                [self.pushLinkViewController startPushLinking];
+        /***************************************************
+         Start the push linking process.
+         *****************************************************/
+        [self.pushLinkViewController startPushLinking];
     }];
-    
-//    [self.navigationController presentViewController:self.pushLinkViewController animated:YES completion:^{
-//        /***************************************************
-//         Start the push linking process.
-//         *****************************************************/
-//        
-//        // Start pushlinking when the interface is shown
-//        [self.pushLinkViewController startPushLinking];
-//    }];
 }
 
 #pragma mark - Heartbeat control
@@ -283,29 +268,16 @@
 }
 
 - (void)pushlinkFailed:(PHError *)error {
-    /*
     // Remove pushlink view controller
-    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-    self.pushLinkViewController = nil;
-    
     // Check which error occured
     if (error.code == PUSHLINK_NO_CONNECTION) {
         // No local connection to bridge
         [self noLocalConnection];
-        
         // Start local heartbeat (to see when connection comes back)
         [self performSelector:@selector(enableLocalHeartbeat) withObject:nil afterDelay:1];
+    } else {
+        //TODO:alert user about button not pressed
     }
-    else {
-        // Bridge button not pressed in time
-        self.authenticationFailedAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Authentication failed", @"Authentication failed alert title")
-                                                                    message:NSLocalizedString(@"Make sure you press the button within 30 seconds", @"Authentication failed alert message")
-                                                                   delegate:self
-                                                          cancelButtonTitle:nil
-                                                          otherButtonTitles:NSLocalizedString(@"Retry", @"Authentication failed alert retry button"), NSLocalizedString(@"Cancel", @"Authentication failed cancel button"), nil];
-        [self.authenticationFailedAlert show];
-    }
-     */
 }
 
 /**
