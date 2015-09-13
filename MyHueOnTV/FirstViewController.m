@@ -14,6 +14,7 @@
 @interface FirstViewController ()
 
 @property (weak, nonatomic) IBOutlet UIButton *refreshButton;
+@property (strong, nonatomic) NSMutableArray *allLights;
 
 @end
 
@@ -67,11 +68,11 @@
 
 - (void)loadConnectedBridgeValues {
     PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
-    
     // Check if we have connected to a bridge before
-    if (cache != nil && cache.bridgeConfiguration != nil && cache.bridgeConfiguration.ipaddress != nil){
+    if (cache != nil && cache.bridgeConfiguration != nil && cache.bridgeConfiguration.ipaddress != nil) {
             // Check if we are connected to the bridge right now
             if (UIAppDelegate.phHueSDK.localConnected) {
+                [self refreshingButton];
                 [self transformRefreshButtonToSwitch];
             } else {
             //self.bridgeLastHeartbeatLabel.text = @"Waiting...";
@@ -83,14 +84,48 @@
 #pragma mark LIGHT SWITCH
 
 - (void)transformRefreshButtonToSwitch {
-    self.refreshButton.hidden = NO;
-    [self.refreshButton removeTarget:nil action:NULL forControlEvents:UIControlEventAllEvents];
-    
-    if ([self ligthsState]) {
-        [self prepareButtonOff];
+    [self createGroupOfLights:^(NSMutableArray *ligths) {
+        BOOL lightIsOn = NO;
+        
+        for (PHLight *light in ligths) {
+            NSNumber *lightState = [[light valueForKey:@"lightState"] valueForKey:@"on"];
+            
+            if ([lightState intValue] == 1) {
+                lightIsOn = YES;
+                break;
+            } else {
+                lightIsOn = NO;
+            }
+        }
+        
+        if (lightIsOn) {
+            [self prepareButtonOff];
+        } else {
+            [self prepareButtonOn];
+        }
+    }];
+}
+
+- (void)createGroupOfLights:(void (^)(NSMutableArray *lights))success {
+    if (!self.allLights) {
+        PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
+        self.allLights = [NSMutableArray new];
+        
+        for (PHLight *light in cache.lights.allValues) {
+            [self.allLights addObject:light];
+        }
+        
+        success(self.allLights);
     } else {
-        [self prepareButtonOn];
+        success(self.allLights);
     }
+}
+
+- (void)refreshingButton {
+    self.refreshButton.hidden = NO;
+    
+    [self.refreshButton setTitle:@"..." forState:UIControlStateNormal & UIControlStateHighlighted & UIControlStateSelected];
+    [self.refreshButton removeTarget:nil action:NULL forControlEvents:UIControlEventAllEvents];
 }
 
 - (void)prepareButtonOff {
@@ -104,11 +139,14 @@
 }
 
 - (void)turnOnLights:(id)selector {
-    PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
     PHBridgeSendAPI *bridgeSendAPI = [PHBridgeSendAPI new];
     
-    for (PHLight *light in cache.lights.allValues) {
+    for (PHLight *light in self.allLights) {
         PHLightState *lightState = [PHLightState new];
+        lightState.brightness = [NSNumber numberWithInt:254.0];
+        lightState.saturation = [NSNumber numberWithInt:0.0];
+        lightState.hue = @0;
+        
         lightState.on = @YES;
         [lightState setOnBool:YES];
         // Send lightstate to light
@@ -118,27 +156,19 @@
                 NSLog(@"Response: %@",message);
             } else {
                 [self prepareButtonOff];
-                
-                lightState.brightness = [NSNumber numberWithInt:254];
-                lightState.saturation = [NSNumber numberWithInt:254];
-                
-                [bridgeSendAPI updateLightStateForId:light.identifier withLightState:lightState completionHandler:^(NSArray *errors) {
-                    if (errors != nil) {
-                        NSString *message = [NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"Errors", @""), errors != nil ? errors : NSLocalizedString(@"none", @"")];
-                        NSLog(@"Response: %@",message);
-                    }
-                }];
             }
         }];
     }
 }
 
 - (void)turnOffLights:(id)selector {
-    PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
     PHBridgeSendAPI *bridgeSendAPI = [PHBridgeSendAPI new];
     
-    for (PHLight *light in cache.lights.allValues) {
+    for (PHLight *light in self.allLights) {
         PHLightState *lightState = [PHLightState new];
+        lightState.brightness = [NSNumber numberWithInt:0];
+        lightState.saturation = [NSNumber numberWithInt:0];
+        
         lightState.on = @NO;
         [lightState setOnBool:NO];
         
@@ -148,46 +178,21 @@
                 NSLog(@"Response: %@",message);
             } else {
                 [self prepareButtonOn];
-                
-                lightState.brightness = [NSNumber numberWithInt:0];
-                lightState.saturation = [NSNumber numberWithInt:0];
-                
-                [bridgeSendAPI updateLightStateForId:light.identifier withLightState:lightState completionHandler:^(NSArray *errors) {
-                    if (errors != nil) {
-                        NSString *message = [NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"Errors", @""), errors != nil ? errors : NSLocalizedString(@"none", @"")];
-                        NSLog(@"Response: %@",message);
-                    }
-                }];
             }
         }];
     }
-    
-    [self transformRefreshButtonToSwitch];
-}
-
-- (BOOL)ligthsState {
-    PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
-    
-    for (PHLight *light in cache.lights.allValues) {
-        NSNumber *lightState = [[light valueForKey:@"lightState"] valueForKey:@"on"];
-        
-        if ([lightState intValue] == 1) {
-            return YES;
-        }
-    }
-    
-    return NO;
 }
 
 - (void)noLocalConnection {
-//    self.bridgeLastHeartbeatLabel.text = @"Not connected";
-//    [self.bridgeLastHeartbeatLabel setEnabled:NO];
-//    self.bridgeIpLabel.text = @"Not connected";
-//    [self.bridgeIpLabel setEnabled:NO];
-//    self.bridgeIdLabel.text = @"Not connected";
-//    [self.bridgeIdLabel setEnabled:NO];
-//    
-//    [self.randomLightsButton setEnabled:NO];
+    [self refreshButtonWithConnectionIssue];
+}
+
+- (void)refreshButtonWithConnectionIssue {
+    self.refreshButton.hidden = NO;
+    self.refreshButton.enabled = NO;
+    
+    [self.refreshButton setTitle:@"NO CONNECTION" forState:UIControlStateNormal & UIControlStateHighlighted & UIControlStateSelected];
+    [self.refreshButton removeTarget:nil action:NULL forControlEvents:UIControlEventAllEvents];
 }
 
 - (IBAction)didTapOnRefresh:(id)sender {

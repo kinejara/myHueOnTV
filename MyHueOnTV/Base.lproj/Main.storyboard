@@ -17,7 +17,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tWt-iq-Wsc">
-                                <rect key="frame" x="853.5" y="497" width="213" height="86"/>
+                                <rect key="frame" x="758.5" y="486.5" width="403" height="107"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="403" id="W3X-6K-puZ"/>
+                                    <constraint firstAttribute="height" constant="107" id="xTJ-Rg-Nyr"/>
+                                </constraints>
                                 <inset key="contentEdgeInsets" minX="40" minY="20" maxX="40" maxY="20"/>
                                 <state key="normal" title="Refresh"/>
                                 <connections>
@@ -27,8 +31,8 @@
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="tWt-iq-Wsc" firstAttribute="centerY" secondItem="tsR-hK-woN" secondAttribute="centerY" id="Y8l-GW-cSh"/>
-                            <constraint firstItem="tWt-iq-Wsc" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="f9k-tY-AM0"/>
+                            <constraint firstItem="tWt-iq-Wsc" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="Vzm-IO-hgs"/>
+                            <constraint firstItem="tWt-iq-Wsc" firstAttribute="centerY" secondItem="tsR-hK-woN" secondAttribute="centerY" id="v6S-YA-N05"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="First" image="first" id="acW-dT-cKf"/>
