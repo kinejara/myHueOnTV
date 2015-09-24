@@ -33,11 +33,9 @@
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
@@ -176,9 +174,7 @@
      *****************************************************/
     PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
     if (cache != nil && cache.bridgeConfiguration != nil && cache.bridgeConfiguration.ipaddress != nil) {
-        //
-        [self showLoadingViewWithText:NSLocalizedString(@"Connecting...", @"Connecting text")];
-        
+        //[self showLoadingViewWithText:NSLocalizedString(@"Connecting...", @"Connecting text")];
         // Enable heartbeat with interval of 10 seconds
         [self.phHueSDK enableLocalConnection];
     } else {
@@ -236,7 +232,7 @@
             /***************************************************
              No bridge was found was found. Tell the user and offer to retry..
              *****************************************************/
-            
+            [self showLoadingViewWithText:@"Could not find hue bridge" andActivityIndicatorHidden:YES];
             // No bridges were found, show this to the user
             /*
             self.noBridgeFoundAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"No bridges", @"No bridge found alert title")
@@ -323,19 +319,26 @@
  @param text The text to display under the spinner
  */
 - (void)showLoadingViewWithText:(NSString *)text {
-    // First remove
     [self removeLoadingView];
     
     self.loadingView = [[LoadingViewController alloc] initWithNibName:@"LoadingViewController" bundle:[NSBundle mainBundle]];
    
-    //self.loadingView.view.frame = self.tapBarController.view.bounds;
-    
-    //[self.tapBarController.view addSubview:self.loadingView.view];
-    
     [[[[UIApplication sharedApplication] delegate] window] addSubview:self.loadingView.view];
     
     self.loadingView.loadingLabel.text = text;
 }
+
+- (void)showLoadingViewWithText:(NSString *)text andActivityIndicatorHidden:(BOOL)activityIndicatorHidden {
+    [self removeLoadingView];
+    
+    self.loadingView = [[LoadingViewController alloc] initWithNibName:@"LoadingViewController" bundle:[NSBundle mainBundle]];
+    
+    [[[[UIApplication sharedApplication] delegate] window] addSubview:self.loadingView.view];
+    
+    self.loadingView.loadingLabel.text = text;
+    self.loadingView.activityIndicator.hidden = activityIndicatorHidden;
+}
+
 
 /**
  Removes the full screen loading overlay.

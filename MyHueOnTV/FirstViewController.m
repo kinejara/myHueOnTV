@@ -14,7 +14,6 @@
 @interface FirstViewController ()
 
 @property (weak, nonatomic) IBOutlet UIButton *refreshButton;
-@property (strong, nonatomic) NSMutableArray *allLights;
 
 @end
 
@@ -27,21 +26,13 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self showRefreshButton];
+    [self refreshingButton];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
     self.refreshButton.hidden = YES;
-}
-
-- (void)showRefreshButton {
-    if (!UIAppDelegate.phHueSDK.localConnected) {
-        if (!UIAppDelegate.loadingView) {
-            self.refreshButton.hidden = NO;
-        }
-    }
 }
 
 - (void)setUpNotifications {
@@ -84,42 +75,72 @@
 #pragma mark LIGHT SWITCH
 
 - (void)transformRefreshButtonToSwitch {
-    [self createGroupOfLights:^(NSMutableArray *ligths) {
-        BOOL lightIsOn = NO;
+    PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
+    BOOL lightIsOn = NO;
+    
+    if (cache.lights.allValues.count == 0) {
+        [self refreshingButton];
         
-        for (PHLight *light in ligths) {
-            NSNumber *lightState = [[light valueForKey:@"lightState"] valueForKey:@"on"];
-            
-            if ([lightState intValue] == 1) {
-                lightIsOn = YES;
-                break;
-            } else {
-                lightIsOn = NO;
-            }
-        }
+        return;
+    }
+    
+    for (PHLight *light in cache.lights.allValues) {
+        NSNumber *lightState = [[light valueForKey:@"lightState"] valueForKey:@"on"];
         
-        if (lightIsOn) {
-            [self prepareButtonOff];
+        if ([lightState intValue] == 1) {
+            lightIsOn = YES;
+            break;
         } else {
-            [self prepareButtonOn];
+            lightIsOn = NO;
+        }
+    }
+    
+    if (lightIsOn) {
+        [self prepareButtonOff];
+    } else {
+        [self prepareButtonOn];
+    }
+}
+
+- (void)createGroupOfLightsKine:(void (^)(NSMutableArray *lights))success {
+    PHBridgeSendAPI *bridgeSendAPI = [PHBridgeSendAPI new];
+    NSArray *lightIdentifiers = @[@"1", @"2", @"3"];
+    
+    [bridgeSendAPI createGroupWithName:@"group name" lightIds:lightIdentifiers completionHandler:^(NSString *groupIdentifier, NSArray *errors){
+        if (errors.count > 0) {
+            // Error handling
+        }
+        else {
+            // Get group object from the cache
+            PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
+            PHGroup *group = [cache.groups objectForKey:groupIdentifier];
+            NSLog(@"desc ---> %@",group.description);
+            
+            // Other logic
+            // ...
         }
     }];
 }
 
-- (void)createGroupOfLights:(void (^)(NSMutableArray *lights))success {
-    if (!self.allLights) {
-        PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
-        self.allLights = [NSMutableArray new];
-        
-        for (PHLight *light in cache.lights.allValues) {
-            [self.allLights addObject:light];
-        }
-        
-        success(self.allLights);
-    } else {
-        success(self.allLights);
-    }
-}
+
+//- (void)createGroupOfLights:(void (^)(NSMutableArray *lights))success {
+//    if (self.allLights.count == 0) {
+//        [self refreshingButton];
+//        
+//        PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
+//        
+//        if (cache.lights.allValues.count > 0) {
+//            for (PHLight *light in cache.lights.allValues) {
+//                self.allLights = [NSMutableArray new];
+//                
+//                [self.allLights addObject:light];
+//            }
+//            success(self.allLights);
+//        }
+//    } else {
+//        success(self.allLights);
+//    }
+//}
 
 - (void)refreshingButton {
     self.refreshButton.hidden = NO;
@@ -138,18 +159,25 @@
     [self.refreshButton addTarget:self action:@selector(turnOnLights:) forControlEvents:UIControlEventPrimaryActionTriggered];
 }
 
+/*
+ "on":false,
+ "bri":1,
+ "hue":65535,
+ "sat":0,
+ "effect":"none"
+*/
+
 - (void)turnOnLights:(id)selector {
     PHBridgeSendAPI *bridgeSendAPI = [PHBridgeSendAPI new];
+    PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
     
-    for (PHLight *light in self.allLights) {
+    for (PHLight *light in cache.lights.allValues) {
         PHLightState *lightState = [PHLightState new];
-        lightState.brightness = [NSNumber numberWithInt:254.0];
-        lightState.saturation = [NSNumber numberWithInt:0.0];
-        lightState.hue = @0;
-        
         lightState.on = @YES;
-        [lightState setOnBool:YES];
-        // Send lightstate to light
+        lightState.brightness = [NSNumber numberWithInt:254];
+        lightState.hue = @65535;
+        lightState.saturation = [NSNumber numberWithInt:0];
+        
         [bridgeSendAPI updateLightStateForId:light.identifier withLightState:lightState completionHandler:^(NSArray *errors) {
             if (errors != nil) {
                 NSString *message = [NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"Errors", @""), errors != nil ? errors : NSLocalizedString(@"none", @"")];
@@ -161,16 +189,25 @@
     }
 }
 
+//OFF
+/*
+ "on":false,
+ "bri":1,
+ "hue":65535,
+ "sat":0,
+ "effect":"none"
+ */
 - (void)turnOffLights:(id)selector {
     PHBridgeSendAPI *bridgeSendAPI = [PHBridgeSendAPI new];
+    PHBridgeResourcesCache *cache = [PHBridgeResourcesReader readBridgeResourcesCache];
     
-    for (PHLight *light in self.allLights) {
+    for (PHLight *light in cache.lights.allValues) {
         PHLightState *lightState = [PHLightState new];
-        lightState.brightness = [NSNumber numberWithInt:0];
+        lightState.on = @NO;
+        lightState.brightness = [NSNumber numberWithInt:1];
+        lightState.hue = @65535;
         lightState.saturation = [NSNumber numberWithInt:0];
         
-        lightState.on = @NO;
-        [lightState setOnBool:NO];
         
         [bridgeSendAPI updateLightStateForId:light.identifier withLightState:lightState completionHandler:^(NSArray *errors) {
             if (errors != nil) {
@@ -189,7 +226,6 @@
 
 - (void)refreshButtonWithConnectionIssue {
     self.refreshButton.hidden = NO;
-    self.refreshButton.enabled = NO;
     
     [self.refreshButton setTitle:@"NO CONNECTION" forState:UIControlStateNormal & UIControlStateHighlighted & UIControlStateSelected];
     [self.refreshButton removeTarget:nil action:NULL forControlEvents:UIControlEventAllEvents];

@@ -6,6 +6,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LoadingViewController">
             <connections>
+                <outlet property="activityIndicator" destination="KN9-nE-GAz" id="FcA-fj-yw0"/>
                 <outlet property="loadingLabel" destination="yCg-FU-kYU" id="1fV-vZ-wv1"/>
                 <outlet property="view" destination="iN0-l3-epB" id="sse-pb-kfC"/>
             </connections>
@@ -21,8 +22,8 @@
                         <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="KN9-nE-GAz">
                             <rect key="frame" x="482" y="229" width="64" height="64"/>
                         </activityIndicatorView>
-                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Loading..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yCg-FU-kYU">
-                            <rect key="frame" x="293" y="454" width="442" height="77"/>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Loading..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yCg-FU-kYU">
+                            <rect key="frame" x="293" y="454" width="442" height="160"/>
                             <fontDescription key="fontDescription" type="system" pointSize="42"/>
                             <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                             <nil key="highlightedColor"/>

@@ -15,6 +15,6 @@
  */
 @property (nonatomic,weak) IBOutlet UILabel *loadingLabel;
 @property (nonatomic,weak) IBOutlet UIView *translucenLayer;
-
+@property (nonatomic,weak) IBOutlet UIActivityIndicatorView *activityIndicator;
 
 @end

@@ -4,7 +4,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9035"/>
     </dependencies>
     <scenes>
-        <!--First-->
+        <!--My Hue Bridge-->
         <scene sceneID="hNz-n2-bh7">
             <objects>
                 <viewController id="9pv-A4-QxB" customClass="FirstViewController" sceneMemberID="viewController">
@@ -17,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tWt-iq-Wsc">
-                                <rect key="frame" x="758.5" y="486.5" width="403" height="107"/>
+                                <rect key="frame" x="759" y="487" width="403" height="107"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="403" id="W3X-6K-puZ"/>
                                     <constraint firstAttribute="height" constant="107" id="xTJ-Rg-Nyr"/>
@@ -35,7 +35,7 @@
                             <constraint firstItem="tWt-iq-Wsc" firstAttribute="centerY" secondItem="tsR-hK-woN" secondAttribute="centerY" id="v6S-YA-N05"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="First" image="first" id="acW-dT-cKf"/>
+                    <tabBarItem key="tabBarItem" title="My Hue Bridge" id="acW-dT-cKf"/>
                     <connections>
                         <outlet property="refreshButton" destination="tWt-iq-Wsc" id="xdJ-wV-MtW"/>
                     </connections>
@@ -44,7 +44,7 @@
             </objects>
             <point key="canvasLocation" x="2246" y="-640"/>
         </scene>
-        <!--Second-->
+        <!--Second View Controller-->
         <scene sceneID="wg7-f3-ORb">
             <objects>
                 <viewController id="8rJ-Kc-sve" customClass="SecondViewController" sceneMemberID="viewController">
@@ -78,7 +78,7 @@
                             <constraint firstAttribute="centerY" secondItem="zEq-FU-wV5" secondAttribute="centerY" id="qzY-Ky-pLD"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Second" image="second" id="cPa-gy-q4n"/>
+                    <tabBarItem key="tabBarItem" id="cPa-gy-q4n"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Nw-L8-lE0" sceneMemberID="firstResponder"/>
             </objects>
@@ -104,8 +104,4 @@
             <point key="canvasLocation" x="0.0" y="0.0"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="first" width="30" height="30"/>
-        <image name="second" width="30" height="30"/>
-    </resources>
 </document>
